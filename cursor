@@ -1,0 +1,31 @@
+DELIMITER $$
+CREATE PROCEDURE get_students_with_cursor()
+BEGIN
+-- Declare variables to hold the cursor data
+DECLARE v_first_name VARCHAR(50);
+DECLARE v_last_name VARCHAR(50);
+DECLARE v_department VARCHAR(50);
+-- Declare a cursor to iterate over students
+DECLARE student_cursor CURSOR FOR
+SELECT first_name, last_name, department FROM students;
+-- Declare a handler to exit the loop when the cursor is exhausted
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET @done = TRUE;
+-- Initialize the loop control variable
+SET @done = FALSE;
+-- Open the cursor
+OPEN student_cursor;
+-- Start the loop to fetch rows from the cursor
+read_loop: LOOP
+-- Fetch the next row into variables
+FETCH student_cursor INTO v_first_name, v_last_name, v_department;
+-- Exit the loop if there are no more rows
+IF @done THEN
+LEAVE read_loop;
+END IF;
+-- Display the fetched row
+SELECT CONCAT('Name: ', v_first_name, ' ', v_last_name, ', Department: ', v_department) AS
+student_details;
+END LOOP;
+-- Close the cursor
+CLOSE student_cursor;
+END $$
